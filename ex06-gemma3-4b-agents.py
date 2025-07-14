@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 # https://medium.com/data-science-collective/building-ai-agents-with-pydanticai-021da540f2c5
-from dataclasses import dataclass
+# Example run: take "img/snow.webp" and make it into a pencil sketch named sketch.jpg
+
+from dataclasses import dataclass, field
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
@@ -20,7 +22,7 @@ console = Console()
 
 @dataclass
 class CommandDependencies:
-    commands: List[str] = []
+    commands: List[str] = field(default_factory=list)
     current_instruction: str = ""
 
 def __post_init__(self):
@@ -247,7 +249,11 @@ class MPrompt(Prompt):
     prompt_suffix = "> "
 
 async def main():
-    console.print("[bold blue]Welcome to medit![/bold blue]")
+    console.print("[bold blue]Welcome to medit![/bold blue]\n",
+                  "Enter your instructions in natural language. Type 'exit' to quit.\n",
+                  "Commands: 'list', to show commands, 'run' to execute them, "
+                  "'exit' to quit"
+                  "\n")
     #...
     deps = CommandDependencies()
     
@@ -261,6 +267,7 @@ async def main():
         try:
             # First, use routing agent to determine next action
             result = await routing_agent.run(instruction, deps=deps)
+            print("result")
             
             if result.output.action == "route":
                 if result.output.tool == "imagemagick":
